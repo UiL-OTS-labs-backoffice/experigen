@@ -2,6 +2,10 @@
 
 A framework for creating phonology experiments.
 
+This fork has been created to integrate Experigen into UiL OTS' existing 
+infrastructure for online experiments. If you're not a researcher at UiL OTS,
+you probably want to use the original project.
+
 ## Who is it for? How can I get help?
 
 Experigen is for linguists who have some basic knowledge of HTML, CSS, and Javascript,  

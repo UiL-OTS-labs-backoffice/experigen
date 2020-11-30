@@ -209,7 +209,7 @@ Experigen.printScreensToConsole = function () {
 }
 
 Experigen.recordResponse = function (callerbutton) {
-	this.sendForm($("#currentform"));
+	this.saveForm($("#currentform"));
 	this.advance(callerbutton);
 }
 
@@ -262,8 +262,9 @@ Experigen.manageLocalData = function () {
 Experigen.synchLocalData = function () {
 	var data = $.totalStorage(Experigen.settings.experimentName);
 	for (var i=0; i<data.length; i=i+1) {
-		this.sendForm(data[i]);
+		this.saveForm(data[i]);
 	}
+	this.sendData();
 };
 
 Experigen.emailLocalData = function () {

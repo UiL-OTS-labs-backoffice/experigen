@@ -72,7 +72,7 @@ Experigen.make_into_trial = function (that) {
 					// send the form
 					// enable all text fields before sending, because disabled elements will not be sent
 					$("#currentform " + 'input[type="text"]').prop("disabled",false)
-					Experigen.sendForm($("#currentform"));
+					Experigen.saveForm($("#currentform"));
 					Experigen.advance();
 				} else {
 					// show next part

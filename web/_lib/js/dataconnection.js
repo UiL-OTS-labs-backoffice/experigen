@@ -1,90 +1,58 @@
 // connection to local text files and to the database
 
 Experigen.loadUserID = function () {
-	var that = this;
-	var jsonp_url = this.settings.databaseServer + "getuserid.cgi?experimentName=" + this.settings.experimentName  + "&sourceurl=" + encodeURIComponent(this.sourceURL);
-	
-	if (this.settings.online) {
-		// online mode: connect to the database server
-		$.ajax({
-			dataType: 'jsonp',
-			url: jsonp_url,  
-			success: function (data) {
-				that.userFileName = data;
-				var code =  String.fromCharCode(65 + Math.floor(Math.random()*26)) + String.fromCharCode(65 + Math.floor(Math.random()*26)) + String.fromCharCode(65 + Math.floor(Math.random()*26));
-				that.userCode = code + that.userFileName;	
-				
-				that.load();
-				//console.debug(data);
-			}
-		});
+	// offline mode
+	/// Online mode is not supported by the UiL OTS dataserver
 
-	} else {
-		// offline mode
-
-		// find device name
-		if (!$.totalStorage('deviceName')) {
-			var name =  String.fromCharCode(65 + Math.floor(Math.random()*26)) + String.fromCharCode(65 + Math.floor(Math.random()*26)) + String.fromCharCode(65 + Math.floor(Math.random()*26));
-			$.totalStorage('deviceName',name);
-		}
-		// find record of last file name, add 1 to that
-		if (!$.totalStorage('fileName')){
-			$.totalStorage('fileName', {});
-		}
-		var fileName = $.totalStorage('fileName');
-		if (fileName && !fileName[this.settings.experimentName]) {
-			fileName[this.settings.experimentName] = 0;
-			$.totalStorage('fileName',fileName);
-		} 
-		fileName[this.settings.experimentName] += 1;
-		$.totalStorage('fileName',fileName);
-		this.userFileName = $.totalStorage('fileName')[this.settings.experimentName];
-		var code =  String.fromCharCode(65 + Math.floor(Math.random()*26)) + String.fromCharCode(65 + Math.floor(Math.random()*26)) + String.fromCharCode(65 + Math.floor(Math.random()*26));
-		this.userCode = code + this.userFileName;	
-		this.load();
-		// create interface for managing local data
-		this.manageLocalData();
+	// find device name
+	if (!$.totalStorage('deviceName')) {
+		var name =  String.fromCharCode(65 + Math.floor(Math.random()*26)) + String.fromCharCode(65 + Math.floor(Math.random()*26)) + String.fromCharCode(65 + Math.floor(Math.random()*26));
+		$.totalStorage('deviceName',name);
 	}
+	// find record of last file name, add 1 to that
+	if (!$.totalStorage('fileName')){
+		$.totalStorage('fileName', {});
+	}
+	var fileName = $.totalStorage('fileName');
+	if (fileName && !fileName[this.settings.experimentName]) {
+		fileName[this.settings.experimentName] = 0;
+		$.totalStorage('fileName',fileName);
+	}
+	fileName[this.settings.experimentName] += 1;
+	$.totalStorage('fileName',fileName);
+	this.userFileName = $.totalStorage('fileName')[this.settings.experimentName];
+	var code =  String.fromCharCode(65 + Math.floor(Math.random()*26)) + String.fromCharCode(65 + Math.floor(Math.random()*26)) + String.fromCharCode(65 + Math.floor(Math.random()*26));
+	this.userCode = code + this.userFileName;
+	this.load();
+	// create interface for managing local data
+	this.manageLocalData();
 }
 
 
+Experigen.data = []
 
-Experigen.sendForm = function (formObj) {
-	
+Experigen.saveForm = function (formObj) {
+	let trial = {};
+	formObj.serializeArray().forEach( x => trial[x.name] = x.value);
+
+	this.data.push(trial);
+}
+
+Experigen.sendData = function () {
+
 	if (this.settings.online) {
-		// online mode	
-		var jsonp_url = this.settings.databaseServer + "dbwrite.cgi?" + formObj.serialize();
+		// online mode
+		var jsonp_url = this.settings.databaseServer + "api/" + this.settings.databaseAccessKey.trim() + '/upload/';
 		$.ajax({
-			dataType: 'jsonp',
-			url: jsonp_url,  
+			method: 'POST',
+			contentType: 'text/plain',
+			data: JSON.stringify(this.data),
+			url: jsonp_url,
 			success: function (data) {
-				//console.debug(data);
+				console.debug(data);
 				return true;
 			}
 		});
-
-	} else {
-	
-		//offline mode --- write locally if object, send to server if string
-		if (typeof formObj==="string") {
-			
-			var jsonp_url = this.settings.databaseServer + "dbwrite.cgi?" + formObj;
-			$.ajax({
-				dataType: 'jsonp',
-				url: jsonp_url,  
-				success: function (data) {
-					//console.debug(data);
-					return true;
-				}
-			});
-			
-		} else {
-			formObj.append('<input type="hidden" name="deviceName" value="' + $.totalStorage('deviceName') + '">');
-			formObj.append('<input type="hidden" name="localTime" value="' + Date().toString() + '">');
-			var experiment = $.totalStorage(this.settings.experimentName) || [];
-			experiment.push(formObj.serialize());
-			$.totalStorage(this.settings.experimentName, experiment);
-		}
 
 	}
 }

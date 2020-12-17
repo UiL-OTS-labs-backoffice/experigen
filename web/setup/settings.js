@@ -4,8 +4,8 @@ var Experigen =  {
 		experimentName: "Default", // use only A-Z, a-z, 0-9
 		
 		databaseServer:    "https://experiment-datastore.lab.hum.uu.nl/",
-		recorderServer:    "/experigen/audioserver/upload.php",
-		databaseAccessKey: "",
+		recorderServer:    "https://audio-prodlexstress-spanish.lab.hum.uu.nl/upload.php",
+		databaseAccessKey: "00000000-0000-0000-0000-000000000000",
 
 		online: true, // make sure you know what you're doing before changing this
 		
